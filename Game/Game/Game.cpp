@@ -20,6 +20,7 @@ string leadersName[4];
 FILE* Lead;
 enum eDirection { STOP = 0, LEFT, RIGHT, UP, DOWN };
 eDirection dir;
+srand(time(NULL));
 
 bool fruitAtSnake() {
 	if (fruitX == x && fruitY == y) {
