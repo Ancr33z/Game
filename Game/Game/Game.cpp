@@ -311,11 +311,12 @@ int main()
 			break;
 		case 2:
 			system("cls");
-			cout << "1.";
+			cout << leadersName[0] << " " << leadersScore[0] << " score" << endl;
+			cout << leadersName[1] << " " << leadersScore[1] << " score" << endl;
+			cout << leadersName[2] << " " << leadersScore[2] << " score" << endl;
 			break;
 		}
-		system("cls");
-		cout << endl << "1. Back to main menu " << endl << "0. Out of game" << endl;
+		cout << endl << "1. Back to main menu " << endl << "0. Exit" << endl;
 		cin >> restartTheGame;
 	}
 	LeaderBoard();
