@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿Сборка начата 10.12.2023 22:01:15.
 Уровень детализации журнала: Normal.     1>Проект "D:\education\raboti\Game\Game\Game\Game.vcxproj" в узле 2 (целевые объекты Build).
      1>InitializeBuildStatus:
@@ -25,3 +26,7 @@
     Ошибок: 0
 
 Прошло времени 00:00:04.88
+=======
+﻿  Game.cpp
+  Game.vcxproj -> D:\ОПИ - лабараторная\Новая папка (2)\Game\Game\x64\Debug\Game.exe
+>>>>>>> 1bc2fdd94c1ed04d8cbdbedfa3a6c0e8878e7eb8

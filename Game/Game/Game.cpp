@@ -18,8 +18,24 @@ string gameEnd = "Game over";
 int leadersScore[4];
 string leadersName[4];
 FILE* Lead;
-enum eDirection { STOP = 0, LEFT, RIGHT, UP, DOWN};
+enum eDirection { STOP = 0, LEFT, RIGHT, UP, DOWN };
 eDirection dir;
+
+bool fruitAtSnake() {
+	if (fruitX == x && fruitY == y) {
+		return true;
+	}
+
+	int i = 0;
+	do {
+		if (fruitX == tailX[i] && fruitY == tailY[i]) {
+			return true;
+		}
+		++i;
+	} while (i < nTail);
+
+	return false;
+}
 
 
 void Setup() {
@@ -27,15 +43,21 @@ void Setup() {
 	playerInTopThree = false;
 	gameOver = false;
 	dir = STOP;
-	x = width / 2 -1;
-	y = height / 2 -1;
-	srand(time(NULL));
-	fruitX = rand() % (width - 1);
-	fruitY = rand() % (height - 1);
+	x = width / 2 - 1;
+	y = height / 2 - 1;
+
+	do {
+		fruitX = rand() % (width - 1);
+		fruitY = rand() % (height - 1);
+	} while (fruitAtSnake());
+
 	score = 0;
 	cout << "Please enter your nickname" << endl;
 	cin >> playerName;
 }
+
+
+
 
 void GetLeaderBoard() {
 	ifstream Lead;
@@ -51,7 +73,7 @@ void GetLeaderBoard() {
 
 void arraySort() {
 	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4 - i ; j++) {
+		for (int j = 0; j < 4 - i; j++) {
 			if (leadersScore[j] < leadersScore[j + 1]) {
 				int temp = leadersScore[j];
 				leadersScore[j] = leadersScore[j + 1];
@@ -71,73 +93,73 @@ void arraySort() {
 
 void Draw() {
 	system("cls");
-		
-		if (dir != 0 ) {
-			for (int i = 0; i < width + 1; i++)
-				cout << "#";
-			cout << endl;
-			for (int i = 0; i < height; i++) {
-				for (int j = 0; j < width; j++) {
-					if ((j == 0) || (j == width - 1))
-						cout << "#";
-					if (i == y && j == x)
-						cout << "0";
-					else if (i == fruitY && j == fruitX)
-						cout << "F";
-					else {
-						bool print = false;
-						for (int k = 0; k < nTail; k++) {
-							if (tailX[k] == j && tailY[k] == i) {
-								print = true;
-								cout << "o";
-							}
+
+	if (dir != 0) {
+		for (int i = 0; i < width + 1; i++)
+			cout << "#";
+		cout << endl;
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				if ((j == 0) || (j == width - 1))
+					cout << "#";
+				if (i == y && j == x)
+					cout << "0";
+				else if (i == fruitY && j == fruitX)
+					cout << "F";
+				else {
+					bool print = false;
+					for (int k = 0; k < nTail; k++) {
+						if (tailX[k] == j && tailY[k] == i) {
+							print = true;
+							cout << "o";
 						}
+					}
+					if (!print) {
+						cout << " ";
+						print = false;
+					}
+				}
+			}
+			cout << endl;
+		}
+	}
+	else {
+		for (int i = 0; i < width + 1; i++)
+			cout << "#";
+		cout << endl;
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				if ((j == 0) || (j == width - 1))
+					cout << "#";
+				if (i == y && j == x)
+					cout << "0";
+				else {
+					bool print = false;
+					for (int k = 0; k < nTail; k++) {
+						if (tailX[k] == j && tailY[k] == i) {
+							print = true;
+							cout << "o";
+						}
+					}
+					if (i == 5 && j > 14 && j < 29) {
+						cout << startTheGame[j - 15];
+
+					}
+					else {
 						if (!print) {
 							cout << " ";
 							print = false;
 						}
 					}
 				}
-				cout << endl;
-			}
-		}
-		else {
-			for (int i = 0; i < width + 1; i++)
-				cout << "#";
-			cout << endl;
-			for (int i = 0; i < height; i++) {
-				for (int j = 0; j < width; j++) {
-					if ((j == 0) || (j == width - 1))
-						cout << "#";
-					if (i == y && j == x)
-						cout << "0";
-					else {
-						bool print = false;
-						for (int k = 0; k < nTail; k++) {
-							if (tailX[k] == j && tailY[k] == i) {
-								print = true;
-								cout << "o";
-							}
-						}
-						if (i == 5 && j > 14 && j < 29) {
-							cout << startTheGame[j - 15];
+				if (i == 7 && j == width) {
 
-						}
-						else {
-							if (!print) {
-								cout << " ";
-								print = false;
-							}
-						}
-					}
-					if (i == 7 && j == width) {
-						
-					}
 				}
-				cout << endl;
 			}
+			cout << endl;
 		}
-		
+	}
+
 	for (int i = 0; i < width + 1; i++)
 		cout << "#";
 	cout << endl;
@@ -190,13 +212,13 @@ void LeaderBoard() {
 
 	cout << endl;
 	cout << "Score: " << score << endl;
-	
+
 }
 
 
 void Input() {
 	if (_kbhit()) {
-		switch (_getch()) 
+		switch (_getch())
 		{
 		case 'a':
 			if (dir != RIGHT) {
@@ -214,7 +236,7 @@ void Input() {
 			}
 			break;
 		case 's':
-			if (dir != UP){
+			if (dir != UP) {
 				dir = DOWN;
 			}
 			break;
@@ -241,8 +263,8 @@ void Logic() {
 		prevX = prev2X;
 		prevY = prev2Y;
 	}
-	switch (dir) 
-	{
+
+	switch (dir) {
 	case LEFT:
 		x--;
 		break;
@@ -257,7 +279,6 @@ void Logic() {
 		break;
 	}
 
-
 	if (x >= width - 1)
 		x = 0;
 	else if (x < 0)
@@ -266,20 +287,22 @@ void Logic() {
 		y = 0;
 	else if (y < 0)
 		y = height - 1;
+
 	for (int i = 0; i < nTail; i++) {
 		if (tailX[i] == x && tailY[i] == y)
 			gameOver = true;
 	}
 
-	if ((x == fruitX) && (y == fruitY)) {
-		score ++;
-		fruitX = rand() % (width-1);
-		fruitY = rand() % (height-1);
+	if ((x == fruitX && y == fruitY) || fruitAtSnake()) {
+		score++;
 		nTail++;
+		do {
+			fruitX = rand() % (width - 1);
+			fruitY = rand() % (height - 1);
+		} while (fruitAtSnake());
 	}
-
-
 }
+
 
 void LeaderBoardUpdate() {
 	arraySort();
@@ -292,8 +315,9 @@ void LeaderBoardUpdate() {
 	Lead.close();
 }
 
+
 int main()
-{	
+{
 	GetLeaderBoard();
 	Setup();
 
@@ -307,7 +331,7 @@ int main()
 				Draw();
 				Input();
 				Logic();
-				Sleep(80 - nTail);
+				Sleep(180 - nTail);
 			}
 			LeaderBoard();
 			if (playerInTopThree)
@@ -321,11 +345,11 @@ int main()
 			cout << leadersName[1] << " " << leadersScore[1] << " score" << endl;
 			cout << leadersName[2] << " " << leadersScore[2] << " score" << endl;
 			break;
-		case 3: 
+		case 3:
 			restartTheGame = false;
-			
+
 		}
 	}
 
 	return 0;
-}	
+}
