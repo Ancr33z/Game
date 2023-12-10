@@ -6,7 +6,7 @@
 
 using namespace std;
 
-bool gameOver, playerValueRecorded, playerInTopThree;
+bool gameOver, playerValueRecorded, playerInTopThree, restartTheGame = true;
 const int width = 45;
 const int height = 20;
 int x, y, fruitX, fruitY, score, choose;
@@ -295,14 +295,19 @@ int main()
 	GetLeaderBoard();
 	Setup();
 	cout << "1. Play" << endl << "2. Leader board" << endl;
+	cin >> choose;
 	switch (choose) {
 	case 1:
-		while (!gameOver) {
-			Draw();
-			Input();
-			Logic();
-			Sleep(70 - nTail);
-		}
+		while (restartTheGame) {
+			while (!gameOver) {
+				Draw();
+				Input();
+				Logic();
+				Sleep(80 - nTail);
+			}
+			cout << endl << "1. Restart the game " << endl << "0. Out of game" << endl;
+			cin >> restartTheGame;
+	}
 		break;
 	case 2:
 		cout << "1.";
