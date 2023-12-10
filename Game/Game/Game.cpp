@@ -50,8 +50,8 @@ void GetLeaderBoard() {
 }
 
 void arraySort() {
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 3 - i ; j++) {
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4 - i ; j++) {
 			if (leadersScore[j] < leadersScore[j + 1]) {
 				int temp = leadersScore[j];
 				leadersScore[j] = leadersScore[j + 1];
@@ -277,6 +277,8 @@ void Logic() {
 		fruitY = rand() % (height-1);
 		nTail++;
 	}
+
+
 }
 
 void LeaderBoardUpdate() {
@@ -297,7 +299,7 @@ int main()
 
 	while (restartTheGame) {
 		system("cls");
-		cout << "1. Play" << endl << "2. Leader board" << endl;
+		cout << "1. Play" << endl << "2. Leader board" << endl << "3. Options" << endl;
 		cin >> choose;
 
 		switch (choose) {
@@ -308,6 +310,9 @@ int main()
 				Logic();
 				Sleep(80 - nTail);
 			}
+			LeaderBoard();
+			if (playerInTopThree)
+				LeaderBoardUpdate();
 			break;
 		case 2:
 			system("cls");
@@ -315,13 +320,13 @@ int main()
 			cout << leadersName[1] << " " << leadersScore[1] << " score" << endl;
 			cout << leadersName[2] << " " << leadersScore[2] << " score" << endl;
 			break;
+		case 3: 
+			system("cls");
+			break;
 		}
 		cout << endl << "1. Back to main menu " << endl << "0. Exit" << endl;
 		cin >> restartTheGame;
 	}
-	LeaderBoard();
-	if (playerInTopThree)
-	LeaderBoardUpdate();
 
 	return 0;
 }	
