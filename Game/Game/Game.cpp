@@ -294,26 +294,30 @@ int main()
 {	
 	GetLeaderBoard();
 	Setup();
-	cout << "1. Play" << endl << "2. Leader board" << endl;
-	cin >> choose;
-	switch (choose) {
-	case 1:
-		while (restartTheGame) {
+
+	while (restartTheGame) {
+		system("cls");
+		cout << "1. Play" << endl << "2. Leader board" << endl;
+		cin >> choose;
+
+		switch (choose) {
+		case 1:
 			while (!gameOver) {
 				Draw();
 				Input();
 				Logic();
 				Sleep(80 - nTail);
 			}
-			cout << endl << "1. Restart the game " << endl << "0. Out of game" << endl;
-			cin >> restartTheGame;
+			break;
+		case 2:
+			system("cls");
+			cout << "1.";
+			break;
+		}
+		system("cls");
+		cout << endl << "1. Back to main menu " << endl << "0. Out of game" << endl;
+		cin >> restartTheGame;
 	}
-		break;
-	case 2:
-		cout << "1.";
-		break;
-	}
-
 	LeaderBoard();
 	if (playerInTopThree)
 	LeaderBoardUpdate();
