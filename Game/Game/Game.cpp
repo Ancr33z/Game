@@ -12,7 +12,7 @@ const int height = 20;
 int x, y, fruitX, fruitY, score, choose;
 string playerName;
 int tailX[100], tailY[100];
-int nTail;
+int nTail = 0;
 string startTheGame = "Start the game";
 string gameEnd = "Game over";
 int leadersScore[4];
@@ -298,7 +298,6 @@ int main()
 	Setup();
 
 	while (restartTheGame) {
-		system("cls");
 		cout << "1. Play" << endl << "2. Leader board" << endl << "3. Exit" << endl;
 		cin >> choose;
 
