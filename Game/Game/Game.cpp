@@ -299,7 +299,7 @@ int main()
 
 	while (restartTheGame) {
 		system("cls");
-		cout << "1. Play" << endl << "2. Leader board" << endl << "3. Options" << endl;
+		cout << "1. Play" << endl << "2. Leader board" << endl << "3. Exit" << endl;
 		cin >> choose;
 
 		switch (choose) {
@@ -313,6 +313,8 @@ int main()
 			LeaderBoard();
 			if (playerInTopThree)
 				LeaderBoardUpdate();
+			cout << endl << "1. Back to main menu " << endl << "0. Exit" << endl;
+			cin >> restartTheGame;
 			break;
 		case 2:
 			system("cls");
@@ -321,11 +323,9 @@ int main()
 			cout << leadersName[2] << " " << leadersScore[2] << " score" << endl;
 			break;
 		case 3: 
-			system("cls");
-			break;
+			restartTheGame = false;
+			
 		}
-		cout << endl << "1. Back to main menu " << endl << "0. Exit" << endl;
-		cin >> restartTheGame;
 	}
 
 	return 0;
