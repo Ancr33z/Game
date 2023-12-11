@@ -9,9 +9,12 @@ using namespace std;
 bool gameOver, playerValueRecorded, playerInTopThree, restartTheGame = true;
 const int width = 45;
 const int height = 20;
-int x, y, fruitX, fruitY, score, choose, specialFruitX, specialFruitY;
+int x, y, fruitX, fruitY, score, choose, timeBeforeSpawn;
 string playerName;
 int tailX[100], tailY[100];
+int specialFruitX[2];
+int specialFruitY[2];
+
 int nTail = 0;
 string startTheGame = "Start the game";
 string gameEnd = "Game over";
@@ -27,15 +30,17 @@ void Setup() {
 	playerValueRecorded = true;
 	playerInTopThree = false;
 	gameOver = false;
+	timeBeforeSpawn = 0;
 	dir = STOP;
 	x = width / 2 - 1;
 	y = height / 2 - 1;
 
 	fruitX = rand() % (width - 1);
 	fruitY = rand() % (height - 1);
-	specialFruitX = rand() % (width - 1);
-	specialFruitY = rand() % (height - 1);
-
+	specialFruitX[0] = -10;
+	specialFruitY[0] = -10;
+	specialFruitX[1] = -10;
+	specialFruitY[1] = -10;
 
 	score = 0;
 	cout << "Please enter your nickname" << endl;
@@ -49,7 +54,7 @@ bool fruitAtSnake() {
 
 	int i = 0;
 	do {
-		if (fruitX == tailX[i] && fruitY == tailY[i]) {
+		if (fruitX == tailX[i] && fruitY == tailY[i] || (tailX[i] == specialFruitX[0] && tailY[i] == specialFruitY[0] && tailX[i] == specialFruitX[1] && tailY[i] == specialFruitY[1])) {
 			return true;
 		}
 		++i;
@@ -60,7 +65,7 @@ bool fruitAtSnake() {
 
 bool fruitAtFruit() {
 
-	if (fruitX == specialFruitX && fruitY == specialFruitY)
+	if (fruitX == specialFruitX[0] && fruitY == specialFruitY[0] && fruitX == specialFruitX[1] && fruitY == specialFruitY[1])
 		return true;
 
 	return false;
@@ -114,7 +119,7 @@ void Draw() {
 					cout << "0";
 				else if (i == fruitY && j == fruitX)
 					cout << "F";
-				else if (i == specialFruitY && j == specialFruitX)
+				else if (i == specialFruitY[0] && j == specialFruitX[0] || i == specialFruitY[1] && j == specialFruitX[1] || i == specialFruitY[0] && j == specialFruitX[1] || i == specialFruitY[1] && j == specialFruitX[0])
 					cout << "S";
 				else {
 					bool print = false;
@@ -312,14 +317,27 @@ void Logic() {
 			fruitY = rand() % (height - 1);
 		} while (fruitAtSnake() && fruitAtFruit());
 	}
-	if (x == specialFruitX && y == specialFruitY) {
-		score++;
-		nTail++;
+
+	if (y == specialFruitY[0] && x == specialFruitX[0] || y == specialFruitY[1] && x == specialFruitX[1] || y == specialFruitY[0] && x == specialFruitX[1] || y == specialFruitY[1] && x == specialFruitX[0]) {
+		score+=5;
+		if (nTail != 0)
+			nTail--;
+		specialFruitX[0] = -10;
+		specialFruitY[0] = -10;
+		specialFruitX[1] = -10;
+		specialFruitY[1] = -10;
+	}
+	if (timeBeforeSpawn >= (rand() % 100 + 20)) {
 		do {
-			specialFruitX = rand() % (width - 1);
-			specialFruitY = rand() % (height - 1);
+			specialFruitX[0] = rand() % (width - 1);
+			specialFruitY[0] = rand() % (height - 1);
+			specialFruitX[1] = specialFruitX[0] - 1;
+			specialFruitY[1] = specialFruitY[0] - 1;
+			timeBeforeSpawn = 0;
 		} while (fruitAtSnake() && fruitAtFruit());
 	}
+	timeBeforeSpawn++;
+
 }
 
 
