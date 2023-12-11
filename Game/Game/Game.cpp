@@ -6,10 +6,10 @@
 
 using namespace std;
 
-bool gameOver, playerValueRecorded, playerInTopThree, restartTheGame = true;
+bool gameOver, playerValueRecorded, playerInTopThree, fruitSpawned, restartTheGame = true;
 const int width = 45;
 const int height = 20;
-int x, y, fruitX, fruitY, score, choose, timeBeforeSpawn;
+int x, y, fruitX, fruitY, score, choose, timeCounter, timeBeforeSpawn;
 string playerName;
 int tailX[100], tailY[100];
 int specialFruitX[2];
@@ -27,9 +27,11 @@ eDirection dir;
 
 void Setup() {
 	srand(time(NULL));
+	fruitSpawned = false;
 	playerValueRecorded = true;
 	playerInTopThree = false;
 	gameOver = false;
+	timeCounter = 0;
 	timeBeforeSpawn = 0;
 	dir = STOP;
 	x = width / 2 - 1;
@@ -47,7 +49,7 @@ void Setup() {
 	cin >> playerName;
 }
 
-bool fruitAtSnake() {
+bool FruitAtSnake() {
 	if (fruitX == x && fruitY == y) {
 		return true;
 	}
@@ -63,7 +65,7 @@ bool fruitAtSnake() {
 	return false;
 }
 
-bool fruitAtFruit() {
+bool FruitAtFruit() {
 
 	if (fruitX == specialFruitX[0] && fruitY == specialFruitY[0] && fruitX == specialFruitX[1] && fruitY == specialFruitY[1])
 		return true;
@@ -84,7 +86,7 @@ void GetLeaderBoard() {
 	Lead.close();
 }
 
-void arraySort() {
+void ArraySort() {
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4 - i; j++) {
 			if (leadersScore[j] < leadersScore[j + 1]) {
@@ -192,9 +194,8 @@ void LeaderBoard() {
 
 			if ((j == 0) || (j == width - 1))
 				cout << "#";
-			if (i == 5 && j > 16 && j < 26) {
+			if (i == 5 && j > 16 && j < 26)
 				cout << gameEnd[j - 17];
-			}
 			else if (i == y && j == x)
 				cout << "0";
 			else {
@@ -298,7 +299,7 @@ void Logic() {
 	if (x >= width - 1)
 		x = 0;
 	else if (x < 0)
-		x = width - 1;
+		x = width - 2;
 	if (y >= height)
 		y = 0;
 	else if (y < 0)
@@ -315,11 +316,11 @@ void Logic() {
 		do {
 			fruitX = rand() % (width - 1);
 			fruitY = rand() % (height - 1);
-		} while (fruitAtSnake() && fruitAtFruit());
+		} while (FruitAtSnake() && FruitAtFruit());
 	}
 
 	if (y == specialFruitY[0] && x == specialFruitX[0] || y == specialFruitY[1] && x == specialFruitX[1] || y == specialFruitY[0] && x == specialFruitX[1] || y == specialFruitY[1] && x == specialFruitX[0]) {
-		score+=5;
+		score += 5;
 		if (nTail != 0)
 			nTail--;
 		specialFruitX[0] = -10;
@@ -327,22 +328,34 @@ void Logic() {
 		specialFruitX[1] = -10;
 		specialFruitY[1] = -10;
 	}
-	if (timeBeforeSpawn >= (rand() % 100 + 20)) {
-		do {
-			specialFruitX[0] = rand() % (width - 1);
-			specialFruitY[0] = rand() % (height - 1);
-			specialFruitX[1] = specialFruitX[0] - 1;
-			specialFruitY[1] = specialFruitY[0] - 1;
-			timeBeforeSpawn = 0;
-		} while (fruitAtSnake() && fruitAtFruit());
+	timeBeforeSpawn = (rand() % 10)+30;
+
+	if (!fruitSpawned) {
+		if (timeCounter >= timeBeforeSpawn) {
+			do {
+				specialFruitX[0] = rand() % (width - 1);
+				specialFruitY[0] = rand() % (height - 1);
+				specialFruitX[1] = specialFruitX[0] - 1;
+				specialFruitY[1] = specialFruitY[0] - 1;
+			} while (FruitAtSnake() && FruitAtFruit());
+			fruitSpawned = true;
+		}
 	}
-	timeBeforeSpawn++;
+	if (timeCounter >= timeBeforeSpawn + 30 + (rand() % 50)) {
+		specialFruitX[0] = -10;
+		specialFruitY[0] = -10;
+		specialFruitX[1] = -10;
+		specialFruitY[1] = -10;
+		fruitSpawned = false;
+		timeCounter = 0;
+	}
+	timeCounter++;
 
 }
 
 
 void LeaderBoardUpdate() {
-	arraySort();
+	ArraySort();
 	ofstream Lead;
 	Lead.open("LeaderBoard.txt", ofstream::out);
 	Lead.clear();
