@@ -333,7 +333,11 @@ void LeaderBoardUpdate() {
 	}
 	Lead.close();
 }
-
+void DrawLeaderBoard() {
+	cout << leadersName[0] << " " << leadersScore[0] << " score" << endl;
+	cout << leadersName[1] << " " << leadersScore[1] << " score" << endl;
+	cout << leadersName[2] << " " << leadersScore[2] << " score" << endl;
+}
 
 int main()
 {
@@ -364,9 +368,7 @@ int main()
 			break;
 		case 2:
 			system("cls");
-			cout << leadersName[0] << " " << leadersScore[0] << " score" << endl;
-			cout << leadersName[1] << " " << leadersScore[1] << " score" << endl;
-			cout << leadersName[2] << " " << leadersScore[2] << " score" << endl;
+			DrawLeaderBoard();
 			system("pause");
 			break;
 		case 3:
@@ -374,6 +376,5 @@ int main()
 
 		}
 	}
-
 	return 0;
 }
