@@ -9,7 +9,7 @@ using namespace std;
 bool gameOver, playerValueRecorded, playerInTopThree, restartTheGame = true;
 const int width = 45;
 const int height = 20;
-int x, y, fruitX, fruitY, score, choose;
+int x, y, fruitX, fruitY, score, choose, specialFruitX, specialFruitY;
 string playerName;
 int tailX[100], tailY[100];
 int nTail = 0;
@@ -20,7 +20,27 @@ string leadersName[4];
 FILE* Lead;
 enum eDirection { STOP = 0, LEFT, RIGHT, UP, DOWN };
 eDirection dir;
-srand(time(NULL));
+
+
+void Setup() {
+	srand(time(NULL));
+	playerValueRecorded = true;
+	playerInTopThree = false;
+	gameOver = false;
+	dir = STOP;
+	x = width / 2 - 1;
+	y = height / 2 - 1;
+
+	fruitX = rand() % (width - 1);
+	fruitY = rand() % (height - 1);
+	specialFruitX = rand() % (width - 1);
+	specialFruitY = rand() % (height - 1);
+
+
+	score = 0;
+	cout << "Please enter your nickname" << endl;
+	cin >> playerName;
+}
 
 bool fruitAtSnake() {
 	if (fruitX == x && fruitY == y) {
@@ -38,23 +58,13 @@ bool fruitAtSnake() {
 	return false;
 }
 
-void Setup() {
-	playerValueRecorded = true;
-	playerInTopThree = false;
-	gameOver = false;
-	dir = STOP;
-	x = width / 2 - 1;
-	y = height / 2 - 1;
+bool fruitAtFruit() {
 
-	fruitX = rand() % (width - 1);
-	fruitY = rand() % (height - 1);
+	if (fruitX == specialFruitX && fruitY == specialFruitY)
+		return true;
 
-	score = 0;
-	cout << "Please enter your nickname" << endl;
-	cin >> playerName;
+	return false;
 }
-
-
 
 
 void GetLeaderBoard() {
@@ -104,6 +114,8 @@ void Draw() {
 					cout << "0";
 				else if (i == fruitY && j == fruitX)
 					cout << "F";
+				else if (i == specialFruitY && j == specialFruitX)
+					cout << "S";
 				else {
 					bool print = false;
 					for (int k = 0; k < nTail; k++) {
@@ -247,6 +259,7 @@ void Input() {
 }
 
 void Logic() {
+	srand(time(NULL));
 	int prevX = tailX[0];
 	int prevY = tailY[0];
 	tailX[0] = x;
@@ -291,13 +304,21 @@ void Logic() {
 			gameOver = true;
 	}
 
-	if ((x == fruitX && y == fruitY) || fruitAtSnake()) {
+	if (x == fruitX && y == fruitY) {
 		score++;
 		nTail++;
 		do {
 			fruitX = rand() % (width - 1);
 			fruitY = rand() % (height - 1);
-		} while (fruitAtSnake());
+		} while (fruitAtSnake() && fruitAtFruit());
+	}
+	if (x == specialFruitX && y == specialFruitY) {
+		score++;
+		nTail++;
+		do {
+			specialFruitX = rand() % (width - 1);
+			specialFruitY = rand() % (height - 1);
+		} while (fruitAtSnake() && fruitAtFruit());
 	}
 }
 
@@ -317,7 +338,6 @@ void LeaderBoardUpdate() {
 int main()
 {
 	GetLeaderBoard();
-	Setup();
 
 	while (restartTheGame) {
 		system("cls");
@@ -326,7 +346,10 @@ int main()
 
 		switch (choose) {
 		case 1:
+			
 			system("cls");
+			Setup();
+			Draw();
 			while (!gameOver) {
 				Draw();
 				Input();
