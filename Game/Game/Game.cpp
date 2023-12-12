@@ -9,7 +9,7 @@ using namespace std;
 bool gameOver, playerValueRecorded, playerInTopThree, fruitSpawned, restartTheGame = true, fruitSpawnedMys;
 int width = 45;
 int height = 20;
-int x, y, fruitX, fruitY, mysteriosFruitX, mysteriosFruitY, score, choose, timeCounter, timeBeforeSpawn, variantMysteryFruit, increaseCounter;
+int x, y, fruitX, fruitY, mysteriosFruitX, mysteriosFruitY, score, choose, timeCounter, timeBeforeSpawn, variantMysteryFruit, increaseCounter, timeCounterMys;
 string playerName;
 int tailX[100], tailY[100];
 int specialFruitX[2];
@@ -33,6 +33,7 @@ void Setup() {
 	playerInTopThree = false;
 	gameOver = false;
 	timeCounter = 0;
+	timeCounterMys = 0;
 	timeBeforeSpawn = 0;
 	increaseCounter = 0;
 	dir = STOP;
@@ -251,7 +252,7 @@ void FruitSpawn() {
 	timeBeforeSpawn = (rand() % 10) + 30;
 
 	if (!fruitSpawnedMys) {
-		if (timeCounter >= timeBeforeSpawn + (rand() % 10)) {
+		if (timeCounterMys >= timeBeforeSpawn + (rand() % 10)) {
 			do {
 				mysteriosFruitX = (rand() % (width - 1));
 				mysteriosFruitY = (rand() % (width - 1));
@@ -259,11 +260,11 @@ void FruitSpawn() {
 			fruitSpawnedMys = true;
 		}
 	}
-	if (timeCounter >= timeBeforeSpawn + 50 + (rand() % 50)) {
+	if (timeCounterMys >= timeBeforeSpawn + 50 + (rand() % 50)) {
 		mysteriosFruitX = -10;
 		mysteriosFruitY = -10;
 		fruitSpawnedMys = false;
-		timeCounter = 0;
+		timeCounterMys = 0;
 	}
 	if (!fruitSpawned) {
 		if (timeCounter >= timeBeforeSpawn) {
@@ -285,6 +286,7 @@ void FruitSpawn() {
 		timeCounter = 0;
 	}
 	timeCounter++;
+	timeCounterMys++;
 }
 
 
@@ -379,8 +381,6 @@ void Logic() {
 	if (y == specialFruitY[0] && x == specialFruitX[0] || y == specialFruitY[1] && x == specialFruitX[1] || y == specialFruitY[0] && x == specialFruitX[1] || y == specialFruitY[1] && x == specialFruitX[0]) {
 		score += 5;
 		increaseCounter += 5;
-		if (nTail != 0)
-			nTail--;
 		specialFruitX[0] = -10;
 		specialFruitY[0] = -10;
 		specialFruitX[1] = -10;
@@ -392,8 +392,6 @@ void Logic() {
 		case 0:
 			score += 5;
 			increaseCounter += 5;
-			if (nTail != 0)
-				nTail--;
 			mysteriosFruitX = -10;
 			mysteriosFruitY = -10;
 			break;
@@ -440,13 +438,14 @@ int main()
 	GetLeaderBoard();
 
 	while (restartTheGame) {
+
 		system("cls");
 		cout << "1. Play" << endl << "2. Leader board" << endl << "3. Developers" << endl << "4. How to play" << endl << "5. Exit" << endl;
 		cin >> choose;
 
 		switch (choose) {
 		case 1:
-			
+
 			system("cls");
 			Setup();
 			Draw();
@@ -463,6 +462,7 @@ int main()
 
 			cout << endl << "1. Back to main menu " << endl << "0. Exit" << endl;
 			cin >> restartTheGame;
+
 			break;
 		case 2:
 			system("cls");
@@ -472,20 +472,20 @@ int main()
 			break;
 		case 3:
 			system("cls");
-			cout << "1. Borisov Nikita 1-9 PI" << endl;
-			cout << "2. Darkovich Dinis 1-9 PI" << endl;
-			cout << "3. Ermolenko Stanislave 1-9 PI" << endl;
-			cout << "4. Volod'kov Dima 1-9 PI" << endl;
-			cout << "5. Amanov Artur 1-9 PI" << "\n\n";
+			cout << "1. Borisov Nikita 1-9 PI\n";
+			cout << "2. Darkovich Dinis 1-9 PI\n";
+			cout << "3. Ermolenko Stanislave 1-9 PI\n";
+			cout << "4. Volod'kov Dima 1-9 PI\n";
+			cout << "5. Amanov Artur 1-9 PI\n\n";
 
 			system("pause");
 			break;
 		case 4:
 			system("cls");
-			cout << "Use 'w', 'a', 's', 'd' to control your snake" << "\n\n";
-			cout << "'F' - usual fruit can give you +1 score +1 tail" << "\n\n";
-			cout << "'S' - special fruit can give you +5 score -1 tail and his size 2x2 unlike others" << "\n\n";
-			cout << "'?' - mysterios fruit can give you 1 of 3 bonuses: \n1. +1 tail +1 score \n2. -1 tail -1 score \n3. +5 score -1 tail" << "\n\n";
+			cout << "Use 'w', 'a', 's', 'd' to control your snake\n\n";
+			cout << "'F' - usual fruit can give you +1 score +1 tail\n\n";
+			cout << "'S' - special fruit can give you +5 score -1 tail and his size 2x2 unlike others\n\n";
+			cout << "'?' - mysterios fruit can give you 1 of 3 bonuses: \n1. +1 tail +1 score \n2. -1 tail -1 score \n3. +5 score\n\n";
 
 			system("pause");
 			break;
