@@ -6,10 +6,10 @@
 
 using namespace std;
 
-bool gameOver, playerValueRecorded, playerInTopThree, fruitSpawned, restartTheGame = true;
+bool gameOver, playerValueRecorded, playerInTopThree, fruitSpawned, restartTheGame = true, fruitSpawnedMys;
 const int width = 45;
 const int height = 20;
-int x, y, fruitX, fruitY, score, choose, timeCounter, timeBeforeSpawn;
+int x, y, fruitX, fruitY, mysteriosFruitX, mysteriosFruitY, score, choose, timeCounter, timeBeforeSpawn, variantMysteryFruit;
 string playerName;
 int tailX[100], tailY[100];
 int specialFruitX[2];
@@ -28,6 +28,7 @@ eDirection dir;
 void Setup() {
 	srand(time(NULL));
 	fruitSpawned = false;
+	fruitSpawnedMys = false;
 	playerValueRecorded = true;
 	playerInTopThree = false;
 	gameOver = false;
@@ -43,6 +44,9 @@ void Setup() {
 	specialFruitY[0] = -10;
 	specialFruitX[1] = -10;
 	specialFruitY[1] = -10;
+	mysteriosFruitX = -10;
+	mysteriosFruitY = -10;
+
 
 	score = 0;
 	cout << "Please enter your nickname" << endl;
@@ -66,10 +70,12 @@ bool FruitAtSnake() {
 }
 
 bool FruitAtFruit() {
-
-	if (fruitX == specialFruitX[0] && fruitY == specialFruitY[0] && fruitX == specialFruitX[1] && fruitY == specialFruitY[1])
+	if (fruitX == specialFruitX[0] && fruitY == specialFruitY[0] && fruitX == specialFruitX[1] && fruitY == specialFruitY[1] && fruitX == specialFruitX[1] && fruitY == specialFruitY[0] && fruitX == specialFruitX[0] && fruitY == specialFruitY[1])
 		return true;
-
+	if (mysteriosFruitX == specialFruitX[0] && mysteriosFruitY == specialFruitY[0] && mysteriosFruitX == specialFruitX[1] && mysteriosFruitY == specialFruitY[1] && mysteriosFruitX == specialFruitX[1] && mysteriosFruitY == specialFruitY[0] && mysteriosFruitY == specialFruitX[0] && fruitY == specialFruitY[1])
+		return true;
+	if (fruitX == mysteriosFruitX && fruitY == mysteriosFruitY)
+		return true;
 	return false;
 }
 
@@ -121,6 +127,8 @@ void Draw() {
 					cout << "0";
 				else if (i == fruitY && j == fruitX)
 					cout << "F";
+				else if (i == mysteriosFruitY && j == mysteriosFruitX)
+					cout << "?";
 				else if (i == specialFruitY[0] && j == specialFruitX[0] || i == specialFruitY[1] && j == specialFruitX[1] || i == specialFruitY[0] && j == specialFruitX[1] || i == specialFruitY[1] && j == specialFruitX[0])
 					cout << "S";
 				else {
@@ -231,6 +239,46 @@ void LeaderBoard() {
 
 }
 
+void FruitSpawn() {
+	timeBeforeSpawn = (rand() % 10) + 30;
+
+	if (!fruitSpawnedMys) {
+		if (timeCounter >= timeBeforeSpawn + (rand() % 10)) {
+			do {
+				mysteriosFruitX = (rand() % (width - 1));
+				mysteriosFruitY = (rand() % (width - 1));
+			} while (FruitAtSnake() && FruitAtFruit());
+			fruitSpawnedMys = true;
+		}
+	}
+	if (timeCounter >= timeBeforeSpawn + 50 + (rand() % 50)) {
+		mysteriosFruitX = -10;
+		mysteriosFruitY = -10;
+		fruitSpawnedMys = false;
+		timeCounter = 0;
+	}
+	if (!fruitSpawned) {
+		if (timeCounter >= timeBeforeSpawn) {
+			do {
+				specialFruitX[0] = (rand() % (width - 2) + 1);
+				specialFruitY[0] = (rand() % (height - 2) + 1);
+				specialFruitX[1] = specialFruitX[0] - 1;
+				specialFruitY[1] = specialFruitY[0] - 1;
+			} while (FruitAtSnake() && FruitAtFruit());
+			fruitSpawned = true;
+		}
+	}
+	if (timeCounter >= timeBeforeSpawn + 30 + (rand() % 50)) {
+		specialFruitX[0] = -10;
+		specialFruitY[0] = -10;
+		specialFruitX[1] = -10;
+		specialFruitY[1] = -10;
+		fruitSpawned = false;
+		timeCounter = 0;
+	}
+	timeCounter++;
+}
+
 
 void Input() {
 	if (_kbhit()) {
@@ -328,29 +376,32 @@ void Logic() {
 		specialFruitX[1] = -10;
 		specialFruitY[1] = -10;
 	}
-	timeBeforeSpawn = (rand() % 10)+30;
-
-	if (!fruitSpawned) {
-		if (timeCounter >= timeBeforeSpawn) {
-			do {
-				specialFruitX[0] = rand() % (width - 1);
-				specialFruitY[0] = rand() % (height - 1);
-				specialFruitX[1] = specialFruitX[0] - 1;
-				specialFruitY[1] = specialFruitY[0] - 1;
-			} while (FruitAtSnake() && FruitAtFruit());
-			fruitSpawned = true;
+	if (y == mysteriosFruitY && x == mysteriosFruitX) {
+		variantMysteryFruit = rand() % 3;
+		switch (variantMysteryFruit) {
+		case 0:
+			score += 5;
+			if (nTail != 0)
+				nTail--;
+			mysteriosFruitX = -10;
+			mysteriosFruitY = -10;
+			break;
+		case 1:
+			nTail++;
+			score++;
+			mysteriosFruitX = -10;
+			mysteriosFruitY = -10;
+			break;
+		case 2:
+			nTail--;
+			mysteriosFruitX = -10;
+			mysteriosFruitY = -10;
+			break;
+		default:
+			nTail += 100;
 		}
 	}
-	if (timeCounter >= timeBeforeSpawn + 30 + (rand() % 50)) {
-		specialFruitX[0] = -10;
-		specialFruitY[0] = -10;
-		specialFruitX[1] = -10;
-		specialFruitY[1] = -10;
-		fruitSpawned = false;
-		timeCounter = 0;
-	}
-	timeCounter++;
-
+	FruitSpawn();
 }
 
 
@@ -385,6 +436,7 @@ int main()
 			system("cls");
 			Setup();
 			Draw();
+			gameOver = false;
 			while (!gameOver) {
 				Draw();
 				Input();
