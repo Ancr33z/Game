@@ -1,19 +1,20 @@
-#include <iostream>
+﻿#include <iostream>
 #include <fstream>
 #include <iomanip>
 #include <conio.h>
 #include <windows.h>
 
+#include "Header.h"
+
 using namespace std;
 
-bool gameOver, playerValueRecorded, playerInTopThree, fruitSpawned, restartTheGame = true, fruitSpawnedMys;
-int width = 45;
-int height = 20;
-int x, y, fruitX, fruitY, mysteriosFruitX, mysteriosFruitY, score, choose, timeCounter, timeBeforeSpawn, variantMysteryFruit, increaseCounter, timeCounterMys;
+bool gameOver, playerValueRecorded, playerInTopThree, fruitSpawned, restartTheGame = true, fruitSpawnedMys, fruitPlased, headPlased;
+int width = 35;
+int height = 15;
+int x, y, score, choose, timeCounter, timeBeforeSpawn, variantMysteryFruit, increaseCounter, timeCounterMys, gameMode, fruitQuantity;
+int fruit[20];
 string playerName;
 int tailX[100], tailY[100];
-int specialFruitX[2];
-int specialFruitY[2];
 
 int nTail = 0;
 string startTheGame = "Start the game";
@@ -24,9 +25,33 @@ FILE* Lead;
 enum eDirection { STOP = 0, LEFT, RIGHT, UP, DOWN };
 eDirection dir;
 
+bool FruitAtSnake() {
+	for (int i = 0; i < fruitQuantity * 2; i += 2) {
+		if (fruit[i] == x && fruit[i + 1] == y) {
+			return true;
+		}
+		int j = 0;
+		do {
+			if (fruit[i] == tailX[j] && fruit[i + 1] == tailY[j]) {
+				return true;
+			}
+			++j;
+		} while (j < nTail);
+	}
+	return false;
+}
+
+bool FruitAtFruit() {
+	for (int i = 0; i < fruitQuantity * 2 - 2; i += 2) {
+		if (fruit[i] == fruit[i + 2] && fruit[i + 1] == fruit[i + 3])
+			return true;
+	}
+	return false;
+}
 
 void Setup() {
 	srand(time(NULL));
+	headPlased = false;
 	fruitSpawned = false;
 	fruitSpawnedMys = false;
 	playerValueRecorded = true;
@@ -39,53 +64,35 @@ void Setup() {
 	dir = STOP;
 	x = width / 2 - 1;
 	y = height / 2 - 1;
-
-	fruitX = rand() % (width - 1);
-	fruitY = rand() % (height - 1);
-	specialFruitX[0] = -10;
-	specialFruitY[0] = -10;
-	specialFruitX[1] = -10;
-	specialFruitY[1] = -10;
-	mysteriosFruitX = -10;
-	mysteriosFruitY = -10;
-
+	nTail = 0;
+	fruitQuantity = 3;
+	for (int i = 0; i < fruitQuantity * 2; i += 2) {
+		fruit[i] = rand() % (width - 1);
+		fruit[i + 1] = rand() % (height - 1);
+		
+	}
+	for (int i = 0; i < fruitQuantity * 2; i += 2) {
+		while (FruitAtSnake() && FruitAtFruit()) {
+			fruit[i] = rand() % (width - 1);
+			fruit[i + 1] = rand() % (height - 1);
+		}
+	}
 
 	score = 0;
 	cout << "Please enter your nickname" << endl;
 	cin >> playerName;
 }
 
-bool FruitAtSnake() {
-	if (fruitX == x && fruitY == y) {
-		return true;
-	}
 
-	int i = 0;
-	do {
-		if (fruitX == tailX[i] && fruitY == tailY[i] || (tailX[i] == specialFruitX[0] && tailY[i] == specialFruitY[0] && tailX[i] == specialFruitX[1] && tailY[i] == specialFruitY[1])) {
-			return true;
-		}
-		++i;
-	} while (i < nTail);
 
-	return false;
-}
-
-bool FruitAtFruit() {
-	if (fruitX == specialFruitX[0] && fruitY == specialFruitY[0] && fruitX == specialFruitX[1] && fruitY == specialFruitY[1] && fruitX == specialFruitX[1] && fruitY == specialFruitY[0] && fruitX == specialFruitX[0] && fruitY == specialFruitY[1])
-		return true;
-	if (mysteriosFruitX == specialFruitX[0] && mysteriosFruitY == specialFruitY[0] && mysteriosFruitX == specialFruitX[1] && mysteriosFruitY == specialFruitY[1] && mysteriosFruitX == specialFruitX[1] && mysteriosFruitY == specialFruitY[0] && mysteriosFruitY == specialFruitX[0] && fruitY == specialFruitY[1])
-		return true;
-	if (fruitX == mysteriosFruitX && fruitY == mysteriosFruitY)
-		return true;
-	return false;
-}
-
-void FieldIncreaser() {
-	if (increaseCounter >= 10) {
-		width++;
-		height++;
-		increaseCounter -= 10;
+void FieldDecreaser() {
+	if (increaseCounter >= 5) {
+		width--;
+		height--;
+		increaseCounter -= 5;
+		fruitQuantity++;
+		fruit[fruitQuantity*2-2] = rand() % (width - 1);
+		fruit[fruitQuantity*2-1] = rand() % (height - 1);
 	}
 }
 
@@ -126,28 +133,35 @@ void Draw() {
 
 	if (dir != 0) {
 		for (int i = 0; i < width + 1; i++)
-			cout << "#";
+			cout << "#";	
 		cout << endl;
+			
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
 				if ((j == 0) || (j == width - 1))
 					cout << "#";
-				if (i == y && j == x)
+
+				if (i == y && j == x) {
 					cout << "0";
-				else if (i == fruitY && j == fruitX)
-					cout << "F";
-				else if (i == mysteriosFruitY && j == mysteriosFruitX)
-					cout << "?";
-				else if (i == specialFruitY[0] && j == specialFruitX[0] || i == specialFruitY[1] && j == specialFruitX[1] || i == specialFruitY[0] && j == specialFruitX[1] || i == specialFruitY[1] && j == specialFruitX[0])
-					cout << "S";
-				else {
+				}
+				else
+				{
 					bool print = false;
+
 					for (int k = 0; k < nTail; k++) {
 						if (tailX[k] == j && tailY[k] == i) {
 							print = true;
 							cout << "o";
 						}
 					}
+
+					for (int f = 0; f < fruitQuantity * 2; f += 2) {
+						if (j == fruit[f] && i == fruit[f + 1]) {
+							print = true;
+							cout << "F";
+						}
+					}
+
 					if (!print) {
 						cout << " ";
 						print = false;
@@ -180,7 +194,7 @@ void Draw() {
 
 					}
 					else {
-						if (!print) {
+						if (!print && !headPlased) {
 							cout << " ";
 							print = false;
 						}
@@ -223,7 +237,6 @@ void LeaderBoard() {
 						cout << "o";
 					}
 				}
-
 				if (!print) {
 					cout << " ";
 					print = false;
@@ -246,47 +259,6 @@ void LeaderBoard() {
 	cout << endl;
 	cout << "Score: " << score << endl;
 
-}
-
-void FruitSpawn() {
-	timeBeforeSpawn = (rand() % 10) + 30;
-
-	if (!fruitSpawnedMys) {
-		if (timeCounterMys >= timeBeforeSpawn + (rand() % 10)) {
-			do {
-				mysteriosFruitX = (rand() % (width - 1));
-				mysteriosFruitY = (rand() % (width - 1));
-			} while (FruitAtSnake() && FruitAtFruit());
-			fruitSpawnedMys = true;
-		}
-	}
-	if (timeCounterMys >= timeBeforeSpawn + 50 + (rand() % 50)) {
-		mysteriosFruitX = -10;
-		mysteriosFruitY = -10;
-		fruitSpawnedMys = false;
-		timeCounterMys = 0;
-	}
-	if (!fruitSpawned) {
-		if (timeCounter >= timeBeforeSpawn) {
-			do {
-				specialFruitX[0] = (rand() % (width - 2) + 1);
-				specialFruitY[0] = (rand() % (height - 2) + 1);
-				specialFruitX[1] = specialFruitX[0] - 1;
-				specialFruitY[1] = specialFruitY[0] - 1;
-			} while (FruitAtSnake() && FruitAtFruit());
-			fruitSpawned = true;
-		}
-	}
-	if (timeCounter >= timeBeforeSpawn + 30 + (rand() % 50)) {
-		specialFruitX[0] = -10;
-		specialFruitY[0] = -10;
-		specialFruitX[1] = -10;
-		specialFruitY[1] = -10;
-		fruitSpawned = false;
-		timeCounter = 0;
-	}
-	timeCounter++;
-	timeCounterMys++;
 }
 
 
@@ -355,65 +327,32 @@ void Logic() {
 	}
 
 	if (x >= width - 1)
-		x = 0;
+		gameOver = true;
 	else if (x < 0)
-		x = width - 2;
+		gameOver = true;
 	if (y >= height)
-		y = 0;
+		gameOver = true;
 	else if (y < 0)
-		y = height - 1;
+		gameOver = true;
 
 	for (int i = 0; i < nTail; i++) {
 		if (tailX[i] == x && tailY[i] == y)
 			gameOver = true;
 	}
 
-	if (x == fruitX && y == fruitY) {
-		score++;
-		increaseCounter++;
-		nTail++;
-		do {
-			fruitX = rand() % (width - 1);
-			fruitY = rand() % (height - 1);
-		} while (FruitAtSnake() && FruitAtFruit());
-	}
-
-	if (y == specialFruitY[0] && x == specialFruitX[0] || y == specialFruitY[1] && x == specialFruitX[1] || y == specialFruitY[0] && x == specialFruitX[1] || y == specialFruitY[1] && x == specialFruitX[0]) {
-		score += 5;
-		increaseCounter += 5;
-		specialFruitX[0] = -10;
-		specialFruitY[0] = -10;
-		specialFruitX[1] = -10;
-		specialFruitY[1] = -10;
-	}
-	if (y == mysteriosFruitY && x == mysteriosFruitX) {
-		variantMysteryFruit = rand() % 3;
-		switch (variantMysteryFruit) {
-		case 0:
-			score += 5;
-			increaseCounter += 5;
-			mysteriosFruitX = -10;
-			mysteriosFruitY = -10;
-			break;
-		case 1:
-			nTail++;
+	for (int i = 0; i < fruitQuantity * 2; i += 2) {
+		if (x == fruit[i] && y == fruit[i + 1]) {
 			score++;
 			increaseCounter++;
-			mysteriosFruitX = -10;
-			mysteriosFruitY = -10;
-			break;
-		case 2:
-			nTail--;
-			score--;
-			mysteriosFruitX = -10;
-			mysteriosFruitY = -10;
-			break;
-		default:
-			nTail += 100;
+			nTail++;
+			do {
+				fruit[i] = rand() % (width - 1);
+				fruit[i + 1] = rand() % (height - 1);
+			} while (FruitAtSnake() && FruitAtFruit());
 		}
 	}
-	FruitSpawn();
-	FieldIncreaser();
+
+	FieldDecreaser();
 }
 
 
@@ -448,17 +387,29 @@ int main()
 
 			system("cls");
 			Setup();
-			Draw();
-			gameOver = false;
-			while (!gameOver) {
+			cout << playerName << " Enter game mode: 1 - Hard mode, 2 - Easy\n";
+			cin >> gameMode;
+			switch (gameMode)
+			{
+			case 1:			
 				Draw();
-				Input();
-				Logic();
-				Sleep(100);
+				gameOver = false;
+				while (!gameOver) {
+					Draw();
+					Input();
+					Logic();
+					Sleep(100 - 3 * nTail);
+				}
+				LeaderBoard();
+				if (playerInTopThree)
+					LeaderBoardUpdate();
+				break;
+			case 2:
+				easyGameMode();
+				break;
+			default:
+				break;
 			}
-			LeaderBoard();
-			if (playerInTopThree)
-				LeaderBoardUpdate();
 
 			cout << endl << "1. Back to main menu " << endl << "0. Exit" << endl;
 			cin >> restartTheGame;
@@ -477,7 +428,6 @@ int main()
 			cout << "3. Ermolenko Stanislave 1-9 PI\n";
 			cout << "4. Volod'kov Dima 1-9 PI\n";
 			cout << "5. Amanov Artur 1-9 PI\n\n";
-
 			system("pause");
 			break;
 		case 4:
