@@ -37,7 +37,7 @@ eDirection dirMode;
 		increaseCounterMode = 0;
 		dirMode = STOP;
 		xMode = widthMode / 2 - 1;
-		yMode = heightMode / 2 - 1;
+		yMode = heightMode / 2 - 2;
 		nTailMode = 0;
 		fruitXMode = rand() % (widthMode - 1);
 		fruitYMode = rand() % (heightMode - 1);
@@ -173,8 +173,8 @@ eDirection dirMode;
 								cout << "o";
 							}
 						}
-						if (i == 5 && j > 14 && j < 29) {
-							cout << startTheGameMode[j - 15];
+						if (i == 5 && j > 10 && j < 25) {
+							cout << startTheGameMode[j - 11];
 
 						}
 						else {
@@ -209,8 +209,8 @@ eDirection dirMode;
 
 				if ((j == 0) || (j == widthMode - 1))
 					cout << "#";
-				if (i == 5 && j > 16 && j < 26)
-					cout << gameEndMode[j - 17];
+				if (i == 5 && j > 12 && j < 22)
+					cout << gameEndMode[j - 13];
 				else if (i == yMode && j == xMode)
 					cout << "0";
 				else {

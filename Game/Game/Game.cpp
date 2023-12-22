@@ -91,8 +91,8 @@ void FieldDecreaser() {
 		height--;
 		increaseCounter -= 5;
 		fruitQuantity++;
-		fruit[fruitQuantity*2-2] = rand() % (width - 1);
-		fruit[fruitQuantity*2-1] = rand() % (height - 1);
+		fruit[fruitQuantity*2-2] = rand() % (width - 2);
+		fruit[fruitQuantity*2-1] = rand() % (height - 2);
 	}
 }
 
@@ -189,8 +189,8 @@ void Draw() {
 							cout << "o";
 						}
 					}
-					if (i == 5 && j > 14 && j < 29) {
-						cout << startTheGame[j - 15];
+					if (i == 5 && j > 10 && j < 25) {
+						cout << startTheGame[j - 11];
 
 					}
 					else {
@@ -225,8 +225,8 @@ void LeaderBoard() {
 
 			if ((j == 0) || (j == width - 1))
 				cout << "#";
-			if (i == 5 && j > 16 && j < 26)
-				cout << gameEnd[j - 17];
+			if (i == 5 && j > 12 && j < 22)
+				cout << gameEnd[j - 13];
 			else if (i == y && j == x)
 				cout << "0";
 			else {
@@ -387,7 +387,10 @@ int main()
 
 			system("cls");
 			Setup();
-			cout << playerName << " Enter game mode: 1 - Hard mode, 2 - Easy\n";
+			system("cls");
+			cout << playerName << " enter game mode: 1 - Hard mode, 2 - Easy mode\n\n";
+			cout << "Hard mode is the mode when the playing field decreases when reaching 5 points, and which has only 3 normal fruits\n";
+			cout << "Easy mode is when the field increases when you reach 10 points and there are 3 different fruits in this mode \n";
 			cin >> gameMode;
 			switch (gameMode)
 			{
@@ -425,7 +428,7 @@ int main()
 			system("cls");
 			cout << "1. Borisov Nikita 1-9 PI\n";
 			cout << "2. Darkovich Dinis 1-9 PI\n";
-			cout << "3. Ermolenko Stanislave 1-9 PI\n";
+			cout << "3. Ermolenko Stanislav 1-9 PI\n";
 			cout << "4. Volod'kov Dima 1-9 PI\n";
 			cout << "5. Amanov Artur 1-9 PI\n\n";
 			system("pause");
@@ -441,7 +444,8 @@ int main()
 			break;
 		case 5:
 			restartTheGame = false;
-
+			break;
+		default:
 			break;
 		}
 	}
