@@ -1,19 +1,20 @@
-#include <iostream>
+﻿#include <iostream>
 #include <fstream>
 #include <iomanip>
 #include <conio.h>
 #include <windows.h>
 
+#include "Header.h"
+
 using namespace std;
 
-bool gameOver, playerValueRecorded, playerInTopThree, fruitSpawned, restartTheGame = true;
-const int width = 45;
-const int height = 20;
-int x, y, fruitX, fruitY, score, choose, timeCounter, timeBeforeSpawn;
+bool gameOver, playerValueRecorded, playerInTopThree, fruitSpawned, restartTheGame = true, fruitSpawnedMys, fruitPlased, headPlased;
+int width = 35;
+int height = 15;
+int x, y, score, choose, timeCounter, timeBeforeSpawn, variantMysteryFruit, increaseCounter, timeCounterMys, gameMode, fruitQuantity;
+int fruit[20];
 string playerName;
 int tailX[100], tailY[100];
-int specialFruitX[2];
-int specialFruitY[2];
 
 int nTail = 0;
 string startTheGame = "Start the game";
@@ -24,55 +25,78 @@ FILE* Lead;
 enum eDirection { STOP = 0, LEFT, RIGHT, UP, DOWN };
 eDirection dir;
 
+bool FruitAtSnake() {
+	for (int i = 0; i < fruitQuantity * 2; i += 2) {
+		if (fruit[i] == x && fruit[i + 1] == y) {
+			return true;
+		}
+		int j = 0;
+		do {
+			if (fruit[i] == tailX[j] && fruit[i + 1] == tailY[j]) {
+				return true;
+			}
+			++j;
+		} while (j < nTail);
+	}
+	return false;
+}
+
+bool FruitAtFruit() {
+	for (int i = 0; i < fruitQuantity * 2 - 2; i += 2) {
+		for (int j = 0; j < fruitQuantity * 2 - 2; j += 2) {
+			if (fruit[i] == fruit[i + 2] && fruit[i + 1] == fruit[i + 3])
+				return true;
+		}
+	}
+	return false;
+}
 
 void Setup() {
 	srand(time(NULL));
+	headPlased = false;
 	fruitSpawned = false;
+	fruitSpawnedMys = false;
 	playerValueRecorded = true;
 	playerInTopThree = false;
 	gameOver = false;
 	timeCounter = 0;
+	timeCounterMys = 0;
 	timeBeforeSpawn = 0;
+	increaseCounter = 0;
 	dir = STOP;
 	x = width / 2 - 1;
 	y = height / 2 - 1;
-
-	fruitX = rand() % (width - 1);
-	fruitY = rand() % (height - 1);
-	specialFruitX[0] = -10;
-	specialFruitY[0] = -10;
-	specialFruitX[1] = -10;
-	specialFruitY[1] = -10;
+	nTail = 0;
+	fruitQuantity = 3;
+	for (int i = 0; i < fruitQuantity * 2; i += 2) {
+		fruit[i] = rand() % (width - 1);
+		fruit[i + 1] = rand() % (height - 1);
+		
+	}
+	for (int i = 0; i < fruitQuantity * 2; i += 2) {
+		while (FruitAtSnake() && FruitAtFruit()) {
+			fruit[i] = rand() % (width - 1);
+			fruit[i + 1] = rand() % (height - 1);
+		}
+	}
 
 	score = 0;
 	cout << "Please enter your nickname" << endl;
 	cin >> playerName;
 }
 
-bool FruitAtSnake() {
-	if (fruitX == x && fruitY == y) {
-		return true;
+
+
+void FieldDecreaser() {
+	if (increaseCounter >= 5) {
+		width--;
+		height--;
+		increaseCounter -= 5;
+		fruitQuantity++;
+		fruit[fruitQuantity*2-2] = rand() % (width - 2);
+		fruit[fruitQuantity*2-1] = rand() % (height - 2);
 	}
-
-	int i = 0;
-	do {
-		if (fruitX == tailX[i] && fruitY == tailY[i] || (tailX[i] == specialFruitX[0] && tailY[i] == specialFruitY[0] && tailX[i] == specialFruitX[1] && tailY[i] == specialFruitY[1])) {
-			return true;
-		}
-		++i;
-	} while (i < nTail);
-
-	return false;
 }
-
-bool FruitAtFruit() {
-
-	if (fruitX == specialFruitX[0] && fruitY == specialFruitY[0] && fruitX == specialFruitX[1] && fruitY == specialFruitY[1])
-		return true;
-
-	return false;
-}
-
 
 void GetLeaderBoard() {
 	ifstream Lead;
@@ -111,26 +135,35 @@ void Draw() {
 
 	if (dir != 0) {
 		for (int i = 0; i < width + 1; i++)
-			cout << "#";
+			cout << "#";	
 		cout << endl;
+			
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
 				if ((j == 0) || (j == width - 1))
 					cout << "#";
-				if (i == y && j == x)
+
+				if (i == y && j == x) {
 					cout << "0";
-				else if (i == fruitY && j == fruitX)
-					cout << "F";
-				else if (i == specialFruitY[0] && j == specialFruitX[0] || i == specialFruitY[1] && j == specialFruitX[1] || i == specialFruitY[0] && j == specialFruitX[1] || i == specialFruitY[1] && j == specialFruitX[0])
-					cout << "S";
-				else {
+				}
+				else
+				{
 					bool print = false;
+
 					for (int k = 0; k < nTail; k++) {
 						if (tailX[k] == j && tailY[k] == i) {
 							print = true;
 							cout << "o";
 						}
 					}
+
+					for (int f = 0; f < fruitQuantity * 2; f += 2) {
+						if (j == fruit[f] && i == fruit[f + 1]) {
+							print = true;
+							cout << "F";
+						}
+					}
+
 					if (!print) {
 						cout << " ";
 						print = false;
@@ -158,12 +191,12 @@ void Draw() {
 							cout << "o";
 						}
 					}
-					if (i == 5 && j > 14 && j < 29) {
-						cout << startTheGame[j - 15];
+					if (i == 5 && j > 10 && j < 25) {
+						cout << startTheGame[j - 11];
 
 					}
 					else {
-						if (!print) {
+						if (!print && !headPlased) {
 							cout << " ";
 							print = false;
 						}
@@ -194,8 +227,8 @@ void LeaderBoard() {
 
 			if ((j == 0) || (j == width - 1))
 				cout << "#";
-			if (i == 5 && j > 16 && j < 26)
-				cout << gameEnd[j - 17];
+			if (i == 5 && j > 12 && j < 22)
+				cout << gameEnd[j - 13];
 			else if (i == y && j == x)
 				cout << "0";
 			else {
@@ -206,7 +239,6 @@ void LeaderBoard() {
 						cout << "o";
 					}
 				}
-
 				if (!print) {
 					cout << " ";
 					print = false;
@@ -297,60 +329,32 @@ void Logic() {
 	}
 
 	if (x >= width - 1)
-		x = 0;
+		gameOver = true;
 	else if (x < 0)
-		x = width - 2;
+		gameOver = true;
 	if (y >= height)
-		y = 0;
+		gameOver = true;
 	else if (y < 0)
-		y = height - 1;
+		gameOver = true;
 
 	for (int i = 0; i < nTail; i++) {
 		if (tailX[i] == x && tailY[i] == y)
 			gameOver = true;
 	}
 
-	if (x == fruitX && y == fruitY) {
-		score++;
-		nTail++;
-		do {
-			fruitX = rand() % (width - 1);
-			fruitY = rand() % (height - 1);
-		} while (FruitAtSnake() && FruitAtFruit());
-	}
-
-	if (y == specialFruitY[0] && x == specialFruitX[0] || y == specialFruitY[1] && x == specialFruitX[1] || y == specialFruitY[0] && x == specialFruitX[1] || y == specialFruitY[1] && x == specialFruitX[0]) {
-		score += 5;
-		if (nTail != 0)
-			nTail--;
-		specialFruitX[0] = -10;
-		specialFruitY[0] = -10;
-		specialFruitX[1] = -10;
-		specialFruitY[1] = -10;
-	}
-	timeBeforeSpawn = (rand() % 10)+30;
-
-	if (!fruitSpawned) {
-		if (timeCounter >= timeBeforeSpawn) {
+	for (int i = 0; i < fruitQuantity * 2; i += 2) {
+		if (x == fruit[i] && y == fruit[i + 1]) {
+			score++;
+			increaseCounter++;
+			nTail++;
 			do {
-				specialFruitX[0] = rand() % (width - 1);
-				specialFruitY[0] = rand() % (height - 1);
-				specialFruitX[1] = specialFruitX[0] - 1;
-				specialFruitY[1] = specialFruitY[0] - 1;
+				fruit[i] = rand() % (width - 1);
+				fruit[i + 1] = rand() % (height - 1);
 			} while (FruitAtSnake() && FruitAtFruit());
-			fruitSpawned = true;
 		}
 	}
-	if (timeCounter >= timeBeforeSpawn + 30 + (rand() % 50)) {
-		specialFruitX[0] = -10;
-		specialFruitY[0] = -10;
-		specialFruitX[1] = -10;
-		specialFruitY[1] = -10;
-		fruitSpawned = false;
-		timeCounter = 0;
-	}
-	timeCounter++;
 
+	FieldDecreaser();
 }
 
 
@@ -375,36 +379,76 @@ int main()
 	GetLeaderBoard();
 
 	while (restartTheGame) {
+
 		system("cls");
-		cout << "1. Play" << endl << "2. Leader board" << endl << "3. Exit" << endl;
+		cout << "1. Play" << endl << "2. Leader board" << endl << "3. Developers" << endl << "4. How to play" << endl << "5. Exit" << endl;
 		cin >> choose;
 
 		switch (choose) {
 		case 1:
-			
+
 			system("cls");
 			Setup();
-			Draw();
-			while (!gameOver) {
+			system("cls");
+			cout << playerName << " enter game mode: 1 - Hard mode, 2 - Easy mode\n\n";
+			cout << "Hard mode is the mode when the playing field decreases when reaching 5 points, and which has only 3 normal fruits\n";
+			cout << "Easy mode is when the field increases when you reach 10 points and there are 3 different fruits in this mode \n";
+			cin >> gameMode;
+			switch (gameMode)
+			{
+			case 1:			
 				Draw();
-				Input();
-				Logic();
-				Sleep(100);
+				gameOver = false;
+				while (!gameOver) {
+					Draw();
+					Input();
+					Logic();
+					Sleep(100 - 3 * nTail);
+				}
+				LeaderBoard();
+				if (playerInTopThree)
+					LeaderBoardUpdate();
+				break;
+			case 2:
+				easyGameMode();
+				break;
+			default:
+				break;
 			}
-			LeaderBoard();
-			if (playerInTopThree)
-				LeaderBoardUpdate();
+
 			cout << endl << "1. Back to main menu " << endl << "0. Exit" << endl;
 			cin >> restartTheGame;
+
 			break;
 		case 2:
 			system("cls");
 			DrawLeaderBoard();
+
 			system("pause");
 			break;
 		case 3:
-			restartTheGame = false;
+			system("cls");
+			cout << "1. Borisov Nikita 1-9 PI\n";
+			cout << "2. Darkovich Dinis 1-9 PI\n";
+			cout << "3. Ermolenko Stanislav 1-9 PI\n";
+			cout << "4. Volod'kov Dima 1-9 PI\n";
+			cout << "5. Amanov Artur 1-9 PI\n\n";
+			system("pause");
+			break;
+		case 4:
+			system("cls");
+			cout << "Use 'w', 'a', 's', 'd' to control your snake\n\n";
+			cout << "'F' - usual fruit can give you +1 score +1 tail\n\n";
+			cout << "'S' - special fruit can give you +5 score -1 tail and his size 2x2 unlike others\n\n";
+			cout << "'?' - mysterios fruit can give you 1 of 3 bonuses: \n1. +1 tail +1 score \n2. -1 tail -1 score \n3. +5 score\n\n";
 
+			system("pause");
+			break;
+		case 5:
+			restartTheGame = false;
+			break;
+		default:
+			break;
 		}
 	}
 	return 0;
