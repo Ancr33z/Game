@@ -43,8 +43,10 @@ bool FruitAtSnake() {
 
 bool FruitAtFruit() {
 	for (int i = 0; i < fruitQuantity * 2 - 2; i += 2) {
-		if (fruit[i] == fruit[i + 2] && fruit[i + 1] == fruit[i + 3])
-			return true;
+		for (int j = 0; j < fruitQuantity * 2 - 2; j += 2) {
+			if (fruit[i] == fruit[i + 2] && fruit[i + 1] == fruit[i + 3])
+				return true;
+		}
 	}
 	return false;
 }
